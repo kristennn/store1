@@ -17,7 +17,8 @@ before_action :authenticate_user!
         product_list.save
 
       end
-
+      current_cart.clean!
+      OrderMailer.notify_order_placed(@order).deliver!
       redirect_to order_path(@order.token)
     else
       render "carts/checkout"
@@ -32,7 +33,7 @@ before_action :authenticate_user!
   def pay_with_alipay
     @order = Order.find_by_token(params[:id])
     @order.set_payment_with!("alipay")
-    @order.pay!
+    @order.make_payment!
     flash[:notice] = "使用支付宝付款成功"
     redirect_to order_path(@order.token)
   end
@@ -40,9 +41,16 @@ before_action :authenticate_user!
   def pay_with_wechat
     @order = Order.find_by_token(params[:id])
     @order.set_payment_with!("wechat")
-    @order.pay!
+    @order.make_payment!
     flash[:notice] = "使用微信支付成功"
     redirect_to order_path(@order.token)
+  end
+
+  def apply_to_cancel
+     @order = Order.find_by_token(params[:id])
+     OrderMailer.apply_cancel(@order).deliver!
+     flash[:notice] = "已提交申请"
+     redirect_to :back
   end
 
   private
