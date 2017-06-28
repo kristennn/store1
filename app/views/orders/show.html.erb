@@ -34,5 +34,13 @@
         <td><%= @order.shipping_name %></td>
       </tr>
     </table>
+    <% if @order.is_paid = false %>
+    <div class="pull-right">
+      <%= link_to("以支付宝支付", pay_with_alipay_order_path(@order.token), method: :post, class: "btn btn-primary btn-danger") %>
+      <%= link_to("以微信支付", pay_with_wechat_order_path(@order.token), method: :post, class: "btn btn-primary btn-danger") %>
+    </div>
+    <% else %>
+    <p class="text-center">此订单已付款成功</p>
+    <% end %>
   </div>
 </div>
